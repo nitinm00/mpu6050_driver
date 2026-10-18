@@ -28,21 +28,22 @@
 #define GPIOX_CRL 			(0x00U)
 #define GPIOB_MODE_R_OFFSET GPIOX_CRL
 #define GPIOB_MODE_R 		(*(volatile unsigned long*) (GPIOB_BASE + GPIOB_MODE_R_OFFSET))
-
 #define I2C_CR1_OFFSET		(0x00U)
-#define I2C_CR1				(*(volatile unsigned long*) (I2C1_BASE + I2C1_CR1_OFFSET))
-
+#define I2C_CR1				(*(volatile unsigned long*) (I2C1_BASE + I2C_CR1_OFFSET))
 #define I2C_CR2_OFFSET		(0x04U)
 #define I2C_CR2				(*(volatile unsigned long*) (I2C1_BASE + I2C_CR2_OFFSET))
-
+#define I2C_SR1_OFFSET		(0x14U)
+#define I2C1_SR1			(*(volatile unsigned long*) I2C1_BASE + I2C_SR1_OFFSET)
+#define I2C1_DR				(*(volatile unsigned long*) (I2C1_BASE + 0x10U))
+#define I2C1_SR2			(*(volatile unsigned long*) (I2C1_BASE + 0x18U))
 #define I2C_CCR_OFFSET 		(0x1CU)
 #define I2C_CCR				(*(volatile unsigned long*) (I2C1_BASE + I2C_CCR_OFFSET))
 
-#define I2C_100KHZ			80U
-#define SD_MODE_MAX_RISE_TIME	17U
-
 #define I2C_TRISE_OFFSET	(0x20U)
 #define I2C1_TRISE			(*(volatile unsigned long*) (I2C1_BASE + I2C_TRISE_OFFSET))
+
+#define I2C_100KHZ			80U
+#define SD_MODE_MAX_RISE_TIME	17U
 
 #define GPIOB_EN 			(1U << 3)
 #define I2C1_EN 			(1U << 21)
@@ -51,8 +52,6 @@
 #define CR1_START			(1U << 8)
 #define CR1_STOP			(1U << 9)
 
-#define I2C1_DR				(*(volatile unsigned long*) (I2C1_BASE + 0x10U))
-#define I2C1_SR2			(*(volatile unsigned long*) (I2C1_BASE + 0x18U))
 #define SR2_BUSY			(1U << 1)
 
 #define SR1_START			(1U << 0)

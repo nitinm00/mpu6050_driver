@@ -53,8 +53,6 @@ void i2c1_init(void)
 
 	// enable
 	I2C_CR1 = CR1_PE;
-
-	return 0;
 }
 
 void i2c1_byte_read(char slave_addr, char mem_addr, char* data)
@@ -70,7 +68,7 @@ void i2c1_byte_read(char slave_addr, char mem_addr, char* data)
 
 	// wait until status shows start bit is set
 	// while it is not started, wait
-	while (!(I2C_SR1 & SR1_START)) {}
+	while (!(I2C1_SR1 & SR1_START)) {}
 
 	// request access to slave addr by sending its address on bus along with write bit
 	// shift left by 1 to make room for R/W bit in LSB position (0 -> write, 1 -> read)
@@ -78,7 +76,7 @@ void i2c1_byte_read(char slave_addr, char mem_addr, char* data)
 
 	// wait until status shows slave address sent, ACK received
 	// while address status bit not set, wait
-	while (!(I2C_SR1 & SR1_ADDR)) {}
+	while (!(I2C1_SR1 & SR1_ADDR)) {}
 
 	// clear ADDR flag from SR1
 	// documented in SR2 note
@@ -89,20 +87,20 @@ void i2c1_byte_read(char slave_addr, char mem_addr, char* data)
 
 	// wait until transmitter is empty
 	// while TxE is not empty, wait
-	while (!(I2C_SR1 & SR1_TXE)) {}
+	while (!(I2C1_SR1 & SR1_TXE)) {}
 
 	// generate repeat start condition
 	I2C_CR1 |= CR1_START;
 
 	// wait until status shows start bit is set
-	while (!(I2C_SR1 & SR1_START)) {}
+	while (!(I2C1_SR1 & SR1_START)) {}
 
 	// read from slave addr
 	I2C1_DR |= (slave_addr << 1 | 1U);
 
 	// wait until status shows slave address sent, ACK received
 	// while address status bit not set, wait
-	while (!(I2C_SR1 & SR1_ADDR)) {}
+	while (!(I2C1_SR1 & SR1_ADDR)) {}
 
 	// disable acknowledgment to prepare for STOP condition
 	I2C_CR1 &= ~CR1_ACK;
@@ -114,7 +112,7 @@ void i2c1_byte_read(char slave_addr, char mem_addr, char* data)
 	I2C_CR1 |= CR1_STOP;
 
 	// wait until receiver is NOT empty (indicating there is data ready to be read)
-	while (!(I2C_SR2 & SR2_RXNE)) {}
+	while (!(I2C1_SR2 & SR1_RXNE)) {}
 
 	// read data from DR
 	*data++ = I2C1_DR;
@@ -141,13 +139,13 @@ void i2c1_burst_read(char slave_addr, char mem_addr, unsigned int n, char* data)
 	I2C_CR1 |= CR1_START;
 
 	// wait until status shows start bit is set
-	while (!(I2C_SR1 & SR1_START)) {}
+	while (!(I2C1_SR1 & SR1_START)) {}
 
 	// transmit slave addr + write
 	I2C1_DR |= (slave_addr << 1 | 0U);
 
 	// wait until status shows slave address sent, ACK received
-	while (!(I2C_SR1 & SR1_ADDR)) {}
+	while (!(I2C1_SR1 & SR1_ADDR)) {}
 
 	// clear ADDR flag from SR1
 	tmp = I2C1_SR2;
@@ -156,22 +154,22 @@ void i2c1_burst_read(char slave_addr, char mem_addr, unsigned int n, char* data)
 	I2C1_DR |= mem_addr;
 
 	// wait until transmitter is empty
-	while (!(I2C_SR1 & SR1_TXE)) {}
+	while (!(I2C1_SR1 & SR1_TXE)) {}
 
 	// generate repeat start condition
 	I2C_CR1 |= CR1_START;
 
 	// wait until start bit is set
-	while (!(I2C_SR1 & SR1_START)) {}
+	while (!(I2C1_SR1 & SR1_START)) {}
 
 	// transmit slave addr + read
 	I2C1_DR |= (slave_addr << 1 | 1U);
 
 	// wait until status shows slave address sent, ACK received
-	while (!(I2C_SR1 & SR1_ADDR)) {}
+	while (!(I2C1_SR1 & SR1_ADDR)) {}
 
 	// clear addr flag
-	tmp = I2C_SR2;
+	tmp = I2C1_SR2;
 
 	// enable acknowledge to keep bus open (?)
 	I2C_CR1 |= CR1_ACK;
@@ -186,7 +184,7 @@ void i2c1_burst_read(char slave_addr, char mem_addr, unsigned int n, char* data)
 			I2C_CR1 |= CR1_STOP;
 
 			// wait until data is available
-			while (!(I2C_SR2 & SR2_RXNE)) {}
+			while (!(I2C1_SR2 & SR1_RXNE)) {}
 
 			// read data from DR
 			*data++ = I2C1_DR;
@@ -196,7 +194,7 @@ void i2c1_burst_read(char slave_addr, char mem_addr, unsigned int n, char* data)
 		else
 		{
 			// wait until data is available
-			while (!(I2C_SR2 & SR2_RXNE)) {}
+			while (!(I2C1_SR2 & SR1_RXNE)) {}
 
 			(*data++) = I2C1_DR;
 
@@ -217,19 +215,19 @@ void i2c_burst_write(char slave_addr, char mem_addr, unsigned int n, char* data)
 	I2C_CR1 |= CR1_START;
 
 	// wait until status shows start bit is set
-	while (!(I2C_SR1 & SR1_START)) {}
+	while (!(I2C1_SR1 & SR1_START)) {}
 
 	// transmit slave addr + write
 	I2C1_DR |= (slave_addr << 1 | 0U);
 
 	// wait until status shows slave address sent, ACK received
-	while (!(I2C_SR1 & SR1_ADDR)) {}
+	while (!(I2C1_SR1 & SR1_ADDR)) {}
 
 	// clear ADDR flag from SR1
 	tmp = I2C1_SR2;
 
 	// wait until transmitter is empty
-	while (!(I2C_SR1 & SR1_TXE)) {}
+	while (!(I2C1_SR1 & SR1_TXE)) {}
 
 	// transmit memory address
 	I2C1_DR |= mem_addr;
@@ -237,13 +235,13 @@ void i2c_burst_write(char slave_addr, char mem_addr, unsigned int n, char* data)
 	for (unsigned int i = 0; i < n; i++)
 	{
 		// wait until transmitter is empty
-		while (!(I2C_SR1 & SR1_TXE)) {}
+		while (!(I2C1_SR1 & SR1_TXE)) {}
 		// transmit data
 		I2C1_DR |= *data++;
 	}
 
 	// wait for byte transfer to finish
-	while (!(I2C_SR1 & SR1_BTF)) {}
+	while (!(I2C1_SR1 & SR1_BTF)) {}
 
 	// generate STOP condition
 	I2C_CR1 |= CR1_STOP;
